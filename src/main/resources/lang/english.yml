@@ -32,11 +32,13 @@ commands:
       identifierRegex: "<gray>The warp identifier <white>%warp% <gray>contains <red>invalid characters<gray>! Please use only letters, numbers and underscores."
       identifierLength: "<gray>The warp identifier <white>%warp% <gray>is <red>too long or too short<gray>! Please use a identifier between <red>4 and 16 <gray>characters long."
       maxWarpsReached: "<gray>You have reached the <red>maximum amount of player warps <gray>you can create!"
+      deniedWorld: "<gray>You <red>cannot create<gray> player warps in this world!"
     teleport:
       teleporting: "<gray>Teleportation starting ..."
       success: "<gray>You have been teleported to player warp <white>%warp%<gray>!"
       notFound: "<gray>The player warp <white>%warp% <gray>could <red>not be found<gray>!"
       canceled: "<gray>Teleportation <red>canceled<gray> due to movement!"
+      otherModality: "<gray>You <red>cannot teleport<gray> to a warp in another modality!"
     delete:
       success: "<gray>The player warp <white>%warp% <gray>has been <green>successfully deleted<gray>!"
       notFound: "<gray>The player warp <white>%warp% <gray>could <red>not be found<gray>!"

@@ -6,6 +6,7 @@ import dev.losterixx.sapi.utils.config.ConfigManager
 import dev.losterixx.sPlayerWarps.Main
 import dev.losterixx.sPlayerWarps.other.ui.GuiManager
 import dev.losterixx.sPlayerWarps.other.PWManager
+import dev.losterixx.sPlayerWarps.other.ModalityManager
 import dev.losterixx.sPlayerWarps.other.PlayerWarp
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.command.brigadier.Commands
@@ -82,6 +83,11 @@ object PlayerWarpCommand : Listener {
                             return@executes 1
                         }
 
+                        if (ModalityManager.isDenied(sender.world.name) && !sender.hasPermission("s-playerwarps.admin.crossmodality")) {
+                            sender.sendMessage(mm.deserialize(prefix + (messages.getString("commands.playerwarp.create.deniedWorld") ?: "<red>You cannot create player warps in this world!")))
+                            return@executes 1
+                        }
+
                         val identifier = StringArgumentType.getString(ctx, "identifier")
 
                         val identifierRegex = Regex(config.getString("playerwarps.identifier.regex", "^[A-Za-z0-9_]+$"))
@@ -125,8 +131,14 @@ object PlayerWarpCommand : Listener {
                             StringArgumentType.getString(ctx, "identifier").lowercase()
                         } catch (_: IllegalArgumentException) { "" }
 
+                        val sender = ctx.source.sender as? Player
                         CompletableFuture.supplyAsync {
+                            val playerModality = sender?.let { ModalityManager.getModality(it.world.name) }
                             PWManager.getAllWarps()
+                                .filter { w ->
+                                    if (sender == null || sender.hasPermission("s-playerwarps.admin.crossmodality")) true
+                                    else ModalityManager.getModality(w.location.world?.name) == playerModality
+                                }
                                 .map { it.identifier }
                                 .filter { it.lowercase().startsWith(input) || it.lowercase() == input || input.isEmpty() }
                         }.thenApply { filteredWarps ->
@@ -152,6 +164,11 @@ object PlayerWarpCommand : Listener {
                         val playerWarp = PWManager.getPlayerWarp(identifier) ?: run {
                             sender.sendMessage(mm.deserialize(prefix + messages.getString("commands.playerwarp.teleport.notFound")
                                 .replace("%warp%", identifier)))
+                            return@executes 1
+                        }
+
+                        if (!ModalityManager.isSameModality(sender.world.name, playerWarp.location.world?.name) && !sender.hasPermission("s-playerwarps.admin.crossmodality")) {
+                            sender.sendMessage(mm.deserialize(prefix + (messages.getString("commands.playerwarp.teleport.otherModality") ?: "<red>You cannot teleport to a warp in another modality!")))
                             return@executes 1
                         }
 

@@ -84,3 +84,43 @@ playerwarps:
       delay: 3
       # Whether to cancel the teleportation if the player moves
       cancelOnMove: true
+# Modality settings to isolate player warps per game mode
+modalities:
+  groups:
+    survival:
+      - "world"
+      - "world_nether"
+      - "world_the_end"
+      - "overworld"
+      - "the_nether"
+      - "the_end"
+      - "spawnwarps"
+      - "SpawnWarps"
+      - "dimensionalhome"
+      - "galactifun_space"
+      - "world_galactifun_earth_orbit"
+      - "world_galactifun_enceladus"
+      - "world_galactifun_io"
+      - "world_galactifun_mars"
+      - "world_galactifun_moon"
+      - "world_galactifun_the_moon"
+      - "world_galactifun_titan"
+      - "world_galactifun_venus"
+    oneblock:
+      - "oneblock_world"
+      - "oneblock_world_nether"
+      - "oneblock_world_the_end"
+    skyblock:
+      - "bskyblock_world"
+      - "bskyblock_world_nether"
+      - "bskyblock_world_the_end"
+    clasico:
+      - "clasico"
+      - "clasico_nether"
+      - "clasico_the_end"
+  denied-worlds:
+    - "boss_arena"
+    - "boss_dimension"
+    - "drakes_bosses"
+    - "nlogin_limbo"
+    - "laboratorio"

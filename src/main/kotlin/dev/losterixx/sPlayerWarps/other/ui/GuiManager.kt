@@ -3,6 +3,7 @@ package dev.losterixx.sPlayerWarps.other.ui
 import dev.losterixx.sPlayerWarps.Main
 import dev.losterixx.sPlayerWarps.other.Cache
 import dev.losterixx.sPlayerWarps.other.PWManager
+import dev.losterixx.sPlayerWarps.other.ModalityManager
 import dev.losterixx.sapi.utils.builder.ItemBuilder
 import dev.losterixx.sapi.utils.config.ConfigManager
 import dev.triumphteam.gui.builder.item.PaperItemBuilder
@@ -110,7 +111,13 @@ object GuiManager {
         val warpExtra = mainMenu.getSection("extra")?.getSection("warpButton")
         val warpNameTemplate = warpExtra?.getSection("item")?.getString("name", "%warp_displayname%")!!
         val warpLoreTemplate = warpExtra?.getSection("item")?.getStringList("lore", listOf())!!
-        val warps = PWManager.getAllWarps().sortedByDescending { w -> w.uniqueUses.size }
+        val playerModality = ModalityManager.getModality(player.world.name)
+        val warps = PWManager.getAllWarps()
+            .filter { w ->
+                if (player.hasPermission("s-playerwarps.admin.crossmodality")) true
+                else ModalityManager.getModality(w.location.world?.name) == playerModality
+            }
+            .sortedByDescending { w -> w.uniqueUses.size }
 
         for (warp in warps) {
             val material = warp.material
@@ -145,9 +152,16 @@ object GuiManager {
             itemStack.itemMeta = meta
 
             val guiItem = GuiItem(itemStack) { event ->
-                val player = event.whoClicked as? Player ?: return@GuiItem
-                player.performCommand("playerwarp teleport ${warp.identifier}")
-                player.closeInventory()
+                val p = event.whoClicked as? Player ?: return@GuiItem
+                if (!ModalityManager.isSameModality(p.world.name, warp.location.world?.name) && !p.hasPermission("s-playerwarps.admin.crossmodality")) {
+                    val messages = ConfigManager.getConfig(config?.getString("langFile", "english") ?: "english")
+                    val prefix = config?.getString("prefix") ?: Main.DEFAULT_PREFIX
+                    p.sendMessage(mm.deserialize(prefix + (messages?.getString("commands.playerwarp.teleport.otherModality") ?: "<red>This warp belongs to another modality!")))
+                    p.closeInventory()
+                    return@GuiItem
+                }
+                p.performCommand("playerwarp teleport ${warp.identifier}")
+                p.closeInventory()
             }
 
             gui.addItem(guiItem)
@@ -252,7 +266,13 @@ object GuiManager {
         val warpExtra = ownWarpsMenu.getSection("extra")?.getSection("warpButton")
         val warpNameTemplate = warpExtra?.getSection("item")?.getString("name", "%warp_displayname%")!!
         val warpLoreTemplate = warpExtra?.getSection("item")?.getStringList("lore", listOf())!!
-        val warps = PWManager.getPlayerWarpsByOwner(player.uniqueId).sortedByDescending { w -> w.uniqueUses.size }
+        val playerModality = ModalityManager.getModality(player.world.name)
+        val warps = PWManager.getPlayerWarpsByOwner(player.uniqueId)
+            .filter { w ->
+                if (player.hasPermission("s-playerwarps.admin.crossmodality")) true
+                else ModalityManager.getModality(w.location.world?.name) == playerModality
+            }
+            .sortedByDescending { w -> w.uniqueUses.size }
 
         for (warp in warps) {
             val material = warp.material
