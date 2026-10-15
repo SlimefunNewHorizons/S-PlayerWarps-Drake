@@ -43,6 +43,9 @@ tasks {
     jar {
         enabled = false
     }
+    assemble {
+        dependsOn(shadowJar)
+    }
     shadowJar {
         archiveClassifier.set("")
 
