@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/DrakesCraft-Labs/S-PlayerWarps-Drake/main/banner.svg" width="100%" alt="S PLAYER WARPS animated banner" />
+  <img src="https://raw.githubusercontent.com/SlimefunNewHorizons/S-PlayerWarps-Drake/main/banner.svg" width="100%" alt="S PLAYER WARPS animated banner" />
 </p>
 
 # About
@@ -15,7 +15,7 @@
 ---
 
 > [!NOTE]
-> **Fork de mantenimiento de DrakesCraft-Labs.** Basado en
+> **Fork de mantenimiento de SlimefunNewHorizons.** Basado en
 > `Losterixx/S-PlayerWarps` para preservar correcciones de iconos inválidos y
 > persistencia de warps en DrakesCraft. El upstream se conserva como referencia;
 > cualquier JAR requiere validación antes de producción.
@@ -50,7 +50,7 @@ My Discord-Server: [S-Projects](https://discord.gg/gnGsUAwp76)
 
 ## 📄 License & Upstream Attribution
 
-This project is a sovereign fork maintained by [**JackStar6677-1**](https://github.com/JackStar6677-1) under [**DrakesCraft Labs**](https://github.com/DrakesCraft-Labs).
+This project is a sovereign fork maintained by [**JackStar6677-1**](https://github.com/JackStar6677-1) under [**DrakesCraft Labs**](https://github.com/SlimefunNewHorizons).
 
 - **Original Project:** Created by the upstream authors and the open-source community.
 - **DrakesCraft Optimizations:** Modernized for Paper/Purpur 1.21.11+, Java 21, high concurrency, asynchronous safety, and exploit/duplication prevention.
