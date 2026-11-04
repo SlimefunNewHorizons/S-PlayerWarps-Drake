@@ -118,7 +118,7 @@ object DialogManager {
                                     null
                                 }
 
-                                if (material == null) {
+                                if (material == null || !material.isItem) {
                                     audience.sendMessage(mm.deserialize(messages.getString("dialogs.icon.messages.invalidMaterial", "<red>Invalid material name!")))
                                     audience.closeDialog()
                                     return@customClick

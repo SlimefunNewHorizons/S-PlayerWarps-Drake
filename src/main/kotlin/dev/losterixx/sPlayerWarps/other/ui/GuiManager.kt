@@ -145,7 +145,7 @@ object GuiManager {
                     .replace("%warp_unique_uses%", uniqueUses.toString())
             }
 
-            val itemStack = ItemStack(material)
+            val itemStack = ItemStack(material.takeIf { it.isItem } ?: Material.ENDER_PEARL)
             val meta = itemStack.itemMeta
             meta?.displayName(mm.deserialize(nameStr).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE))
             meta?.lore(loreList.map { mm.deserialize(it).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE) })
@@ -300,7 +300,7 @@ object GuiManager {
                     .replace("%warp_unique_uses%", uniqueUses.toString())
             }
 
-            val itemStack = ItemStack(material)
+            val itemStack = ItemStack(material.takeIf { it.isItem } ?: Material.ENDER_PEARL)
             val meta = itemStack.itemMeta
             meta?.displayName(mm.deserialize(nameStr).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE))
             meta?.lore(loreList.map { mm.deserialize(it).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE) })
