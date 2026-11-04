@@ -86,6 +86,9 @@ playerwarps:
       cancelOnMove: true
 # Modality settings to isolate player warps per game mode
 modalities:
+  # Enable in the deployment config to separate OneChunk from Survival.
+  # False preserves the previous behaviour; existing warp data is unchanged.
+  isolate-onechunk: false
   groups:
     survival:
       - "world"

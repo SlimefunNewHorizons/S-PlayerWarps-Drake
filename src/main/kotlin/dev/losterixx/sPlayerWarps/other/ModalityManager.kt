@@ -1,6 +1,7 @@
 package dev.losterixx.sPlayerWarps.other
 
 import dev.losterixx.sapi.utils.config.ConfigManager
+import dev.dejvokep.boostedyaml.YamlDocument
 
 object ModalityManager {
 
@@ -8,6 +9,7 @@ object ModalityManager {
     const val ONEBLOCK = "oneblock"
     const val SKYBLOCK = "skyblock"
     const val CLASICO = "clasico"
+    const val ONECHUNK = "onechunk"
 
     private val DEFAULT_MODALITIES = mapOf(
         SURVIVAL to listOf(
@@ -32,11 +34,12 @@ object ModalityManager {
         "boss_arena", "boss_dimension", "drakes_bosses", "nlogin_limbo", "laboratorio"
     )
 
-    fun getModality(worldName: String?): String {
+    @JvmOverloads
+    fun getModality(worldName: String?, config: YamlDocument? = ConfigManager.getConfig("config")): String {
         if (worldName == null) return "unknown"
+        if (isDenied(worldName, config)) return "denied"
         val w = worldName.lowercase()
 
-        val config = ConfigManager.getConfig("config")
         val groupsSection = config?.getSection("modalities.groups")
         if (groupsSection != null) {
             for (key in groupsSection.getRoutesAsStrings(false)) {
@@ -57,15 +60,15 @@ object ModalityManager {
             w.startsWith("oneblock") -> ONEBLOCK
             w.startsWith("bskyblock") -> SKYBLOCK
             w.startsWith("clasico") -> CLASICO
-            isDenied(worldName) -> "denied"
+            w.startsWith("onechunk") && config?.getBoolean("modalities.isolate-onechunk", false) == true -> ONECHUNK
             else -> SURVIVAL
         }
     }
 
-    fun isDenied(worldName: String?): Boolean {
+    @JvmOverloads
+    fun isDenied(worldName: String?, config: YamlDocument? = ConfigManager.getConfig("config")): Boolean {
         if (worldName == null) return true
         val w = worldName.lowercase()
-        val config = ConfigManager.getConfig("config")
         val deniedList = config?.getStringList("modalities.denied-worlds", listOf())
         if (deniedList != null && deniedList.isNotEmpty()) {
             if (deniedList.any { it.equals(w, ignoreCase = true) }) return true
@@ -73,9 +76,10 @@ object ModalityManager {
         return w in DEFAULT_DENIED
     }
 
-    fun isSameModality(world1: String?, world2: String?): Boolean {
-        val m1 = getModality(world1)
-        val m2 = getModality(world2)
+    @JvmOverloads
+    fun isSameModality(world1: String?, world2: String?, config: YamlDocument? = ConfigManager.getConfig("config")): Boolean {
+        val m1 = getModality(world1, config)
+        val m2 = getModality(world2, config)
         if (m1 == "denied" || m2 == "denied" || m1 == "unknown" || m2 == "unknown") return false
         return m1 == m2
     }

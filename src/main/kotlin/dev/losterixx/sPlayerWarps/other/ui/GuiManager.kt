@@ -111,11 +111,10 @@ object GuiManager {
         val warpExtra = mainMenu.getSection("extra")?.getSection("warpButton")
         val warpNameTemplate = warpExtra?.getSection("item")?.getString("name", "%warp_displayname%")!!
         val warpLoreTemplate = warpExtra?.getSection("item")?.getStringList("lore", listOf())!!
-        val playerModality = ModalityManager.getModality(player.world.name)
         val warps = PWManager.getAllWarps()
             .filter { w ->
                 if (player.hasPermission("s-playerwarps.admin.crossmodality")) true
-                else ModalityManager.getModality(w.location.world?.name) == playerModality
+                else ModalityManager.isSameModality(player.world.name, w.location.world?.name)
             }
             .sortedByDescending { w -> w.uniqueUses.size }
 
@@ -269,11 +268,10 @@ object GuiManager {
         val warpExtra = ownWarpsMenu.getSection("extra")?.getSection("warpButton")
         val warpNameTemplate = warpExtra?.getSection("item")?.getString("name", "%warp_displayname%")!!
         val warpLoreTemplate = warpExtra?.getSection("item")?.getStringList("lore", listOf())!!
-        val playerModality = ModalityManager.getModality(player.world.name)
         val warps = PWManager.getPlayerWarpsByOwner(player.uniqueId)
             .filter { w ->
                 if (player.hasPermission("s-playerwarps.admin.crossmodality")) true
-                else ModalityManager.getModality(w.location.world?.name) == playerModality
+                else ModalityManager.isSameModality(player.world.name, w.location.world?.name)
             }
             .sortedByDescending { w -> w.uniqueUses.size }
 

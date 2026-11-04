@@ -142,19 +142,15 @@ object PlayerWarpCommand : Listener {
                         } catch (_: IllegalArgumentException) { "" }
 
                         val sender = ctx.source.sender as? Player
-                        CompletableFuture.supplyAsync {
-                            val playerModality = sender?.let { ModalityManager.getModality(it.world.name) }
-                            PWManager.getAllWarps()
+                        val filteredWarps = PWManager.getAllWarps()
                                 .filter { w ->
                                     if (sender == null || sender.hasPermission("s-playerwarps.admin.crossmodality")) true
-                                    else ModalityManager.getModality(w.location.world?.name) == playerModality
+                                    else ModalityManager.isSameModality(sender.world.name, w.location.world?.name)
                                 }
                                 .map { it.identifier }
                                 .filter { it.lowercase().startsWith(input) || it.lowercase() == input || input.isEmpty() }
-                        }.thenApply { filteredWarps ->
-                            filteredWarps.forEach { builder.suggest(it) }
-                            builder.build()
-                        }
+                        filteredWarps.forEach { builder.suggest(it) }
+                        builder.buildFuture()
                     }
                     .executes { ctx ->
                         val sender = ctx.source.sender as Player
@@ -220,6 +216,11 @@ object PlayerWarpCommand : Listener {
 
                                 remaining -= 1
                                 if (remaining <= 0) {
+                                    if (!ModalityManager.isSameModality(sender.world.name, playerWarp.location.world?.name) && !sender.hasPermission("s-playerwarps.admin.crossmodality")) {
+                                        sender.sendMessage(mm.deserialize(prefix + (messages.getString("commands.playerwarp.teleport.otherModality") ?: "<red>You cannot teleport to a warp in another modality!")))
+                                        pendingTeleports.remove(sender.uniqueId)?.first?.cancel()
+                                        return@Runnable
+                                    }
                                     playerWarp.teleport(sender)
                                     sender.sendMessage(mm.deserialize(prefix + messages.getString("commands.playerwarp.teleport.success")
                                         .replace("%warp%", identifier)))
@@ -462,7 +463,7 @@ object PlayerWarpCommand : Listener {
 
         val stored = pendingTeleports[player.uniqueId] ?: return
         if (!config.getBoolean("playerwarps.teleportation.delay.cancelOnMove", true)) return
-        if (from.distanceSquared(to) < 0.02) return
+        if (from.world == to.world && from.distanceSquared(to) < 0.02) return
 
         val (task, _) = stored
         if (!task.isCancelled) task.cancel()

@@ -36,6 +36,21 @@ S-PlayerWarps is a simple Paper plugin that lets players create personal warps a
 - Java 21 or higher
 - Paper server (1.21.8+)
 
+## Modality isolation (ticket #569, pending runtime validation)
+
+Warp menus, teleport suggestions and teleport execution use the destination
+world to determine its modality. Existing warp records do not need migration.
+Denied worlds take precedence over configured groups, including during the
+teleport countdown. The existing staff bypass permission is unchanged.
+
+Set `modalities.isolate-onechunk: true` in the deployment configuration to keep
+OneChunk separate from Survival; the default `false` preserves the previous
+behaviour. Custom world names can be assigned through `modalities.groups`.
+This patch is source work until its build and runtime checks are recorded;
+it does not establish Paper 26.x compatibility by itself.
+
+Regression tests: `./gradlew test` (via `build_seguro.sh` on Star).
+
 ## Documentation
 GitBook docu: [Link](https://s-projects.gitbook.io/s-projects/s-playerwarps/home)
 

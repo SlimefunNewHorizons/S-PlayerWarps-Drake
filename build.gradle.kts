@@ -26,6 +26,7 @@ dependencies {
     implementation("dev.triumphteam:triumph-gui-paper:3.1.13-SNAPSHOT")
 
     implementation("com.github.Losterixx:S-API:v0.1.4")
+    testImplementation("junit:junit:4.13.2")
 }
 
 tasks {
