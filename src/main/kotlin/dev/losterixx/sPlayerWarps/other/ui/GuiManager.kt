@@ -120,7 +120,10 @@ object GuiManager {
             .sortedByDescending { w -> w.uniqueUses.size }
 
         for (warp in warps) {
-            val material = warp.material
+            val material = PWManager.sanitizeIconMaterial(warp.material)
+            if (warp.material != material) {
+                warp.material = material
+            }
             val displayName = warp.displayName ?: warp.identifier
             val owner = Cache.nameCache[warp.owner] ?: main.server.getOfflinePlayer(warp.owner).name ?: "???"
             val world = warp.location.world?.name ?: "???"
@@ -275,7 +278,10 @@ object GuiManager {
             .sortedByDescending { w -> w.uniqueUses.size }
 
         for (warp in warps) {
-            val material = warp.material
+            val material = PWManager.sanitizeIconMaterial(warp.material)
+            if (warp.material != material) {
+                warp.material = material
+            }
             val displayName = warp.displayName ?: warp.identifier
             val owner = main.server.getOfflinePlayer(warp.owner).name ?: "???"
             val world = warp.location.world?.name ?: "???"

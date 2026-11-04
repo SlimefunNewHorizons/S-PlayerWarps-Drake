@@ -111,12 +111,7 @@ object DialogManager {
                                 val materialName = view.getText("material") ?: return@customClick
                                 val warp = PWManager.getPlayerWarp(warpIdentifier) ?: return@customClick
 
-                                val materialId = materialName.uppercase().replace(" ", "_")
-                                val material = try {
-                                    Material.getMaterial(materialId)
-                                } catch (e: IllegalArgumentException) {
-                                    null
-                                }
+                                val material = PWManager.resolveIconMaterial(materialName)
 
                                 if (material == null) {
                                     audience.sendMessage(mm.deserialize(messages.getString("dialogs.icon.messages.invalidMaterial", "<red>Invalid material name!")))
@@ -125,6 +120,7 @@ object DialogManager {
                                 }
 
                                 warp.material = material
+                                PWManager.saveAllToDisk()
                                 audience.closeDialog()
                                 GuiManager.openEditWarpMenu(audience, warpIdentifier)
                             },

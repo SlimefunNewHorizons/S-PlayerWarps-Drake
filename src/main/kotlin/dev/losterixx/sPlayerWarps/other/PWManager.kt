@@ -18,6 +18,24 @@ object PWManager {
     var saveTask: BukkitTask? = null
         private set
 
+    fun resolveIconMaterial(rawName: String?): Material? {
+        if (rawName.isNullOrBlank()) return null
+        val normalized = rawName.trim().uppercase().replace(" ", "_")
+        val direct = Material.getMaterial(normalized)
+        if (direct != null && direct.isItem) return direct
+        if (normalized.contains("_WALL_")) {
+            val wallAdjusted = Material.getMaterial(normalized.replace("_WALL_", "_"))
+            if (wallAdjusted != null && wallAdjusted.isItem) return wallAdjusted
+        }
+        return null
+    }
+
+    fun sanitizeIconMaterial(material: Material?, fallback: Material = Material.ENDER_PEARL): Material {
+        if (material == null) return fallback
+        if (material.isItem) return material
+        return resolveIconMaterial(material.name) ?: fallback
+    }
+
     fun loadAllFromDisk() {
         cache.clear()
         val warpsSection = data.getSection("warps") ?: return
@@ -30,8 +48,7 @@ object PWManager {
             val uniqueUses = warpSection.getStringList("uniqueUses", listOf<String>())
             val totalUses = warpSection.getInt("totalUses")
             val configuredMaterial = warpSection.getString("material")
-            val material = Material.getMaterial(configuredMaterial)
-                ?.takeIf { it.isItem }
+            val material = resolveIconMaterial(configuredMaterial)
                 ?: Material.ENDER_PEARL.also {
                     main.logger.warning("Warp '$key' has invalid icon '$configuredMaterial'; using ENDER_PEARL.")
                 }
@@ -75,7 +92,7 @@ object PWManager {
             data.set("warps.$identifier.loc.yaw", location.yaw)
             data.set("warps.$identifier.loc.pitch", location.pitch)
             data.set("warps.$identifier.displayName", displayName)
-            data.set("warps.$identifier.material", material.name)
+            data.set("warps.$identifier.material", sanitizeIconMaterial(material).name)
             data.set("warps.$identifier.totalUses", totalUses)
             data.set("warps.$identifier.uniqueUses", uniqueUses.map { it.toString() })
         }

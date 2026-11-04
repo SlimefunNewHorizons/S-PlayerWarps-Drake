@@ -56,6 +56,15 @@ object PlayerWarpCommand : Listener {
                     return@executes 1
                 }
             )
+            .then(Commands.literal("reload")
+                .requires { ctx -> ctx.sender.hasPermission("s-playerwarps.admin.reload") }
+                .executes { ctx ->
+                    ConfigManager.getAllConfigs().values.forEach { it.reload() }
+                    PWManager.loadAllFromDisk()
+                    ctx.source.sender.sendMessage(mm.deserialize(prefix + "<green>Reloaded configs and ${PWManager.getAllWarps().size} player warps from disk."))
+                    return@executes 1
+                }
+            )
             .then(Commands.literal("create")
                 .requires { ctx -> ctx.sender.hasPermission("s-playerwarps.command.playerwarp.create") }
                 .then(Commands.argument("identifier", StringArgumentType.string())
@@ -112,8 +121,9 @@ object PlayerWarpCommand : Listener {
                             return@executes 1
                         }
 
+                        val defaultIcon = PWManager.resolveIconMaterial(config.getString("playerwarps.defaultWarpIcon")) ?: Material.COMPASS
                         PWManager.addPlayerWarp(
-                            PlayerWarp(identifier, sender.uniqueId, sender.location, material = Material.getMaterial(config.getString("playerwarps.defaultWarpIcon")) ?: Material.COMPASS)
+                            PlayerWarp(identifier, sender.uniqueId, sender.location, material = defaultIcon)
                         )
 
                         sender.sendMessage(mm.deserialize(prefix + messages.getString("commands.playerwarp.create.success")
@@ -366,7 +376,7 @@ object PlayerWarpCommand : Listener {
                                     return@executes 1
                                 }
 
-                                if (playerWarp.owner != sender.uniqueId) {
+                                if (playerWarp.owner != sender.uniqueId && !sender.hasPermission("s-playerwarps.admin.reload")) {
                                     sender.sendMessage(mm.deserialize(prefix + messages.getString("commands.playerwarp.edit.notOwner")
                                         .replace("%warp%", identifier)))
                                     return@executes 1
@@ -414,16 +424,15 @@ object PlayerWarpCommand : Listener {
                                     return@executes 1
                                 }
 
-                                if (playerWarp.owner != sender.uniqueId) {
+                                if (playerWarp.owner != sender.uniqueId && !sender.hasPermission("s-playerwarps.admin.reload")) {
                                     sender.sendMessage(mm.deserialize(prefix + messages.getString("commands.playerwarp.edit.notOwner")
                                         .replace("%warp%", identifier)))
                                     return@executes 1
                                 }
 
-                                val normalizedMaterialName = materialName.uppercase().replace(" ", "_")
-                                val material = Material.getMaterial(normalizedMaterialName)
+                                val material = PWManager.resolveIconMaterial(materialName)
 
-                                if (material == null || !material.isItem) {
+                                if (material == null) {
                                     sender.sendMessage(mm.deserialize(prefix + messages.getString("commands.playerwarp.edit.invalidMaterial")
                                         .replace("%warp%", identifier)
                                         .replace("%material%", materialName)))
