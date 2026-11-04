@@ -137,7 +137,7 @@ object PlayerWarpCommand : Listener {
                             PWManager.getAllWarps()
                                 .filter { w ->
                                     if (sender == null || sender.hasPermission("s-playerwarps.admin.crossmodality")) true
-                                    else ModalityManager.getModality(w.location.world?.name) == playerModality
+                                    else w.modality == playerModality
                                 }
                                 .map { it.identifier }
                                 .filter { it.lowercase().startsWith(input) || it.lowercase() == input || input.isEmpty() }
@@ -167,7 +167,7 @@ object PlayerWarpCommand : Listener {
                             return@executes 1
                         }
 
-                        if (!ModalityManager.isSameModality(sender.world.name, playerWarp.location.world?.name) && !sender.hasPermission("s-playerwarps.admin.crossmodality")) {
+                        if (ModalityManager.getModality(sender.world.name) != playerWarp.modality && !sender.hasPermission("s-playerwarps.admin.crossmodality")) {
                             sender.sendMessage(mm.deserialize(prefix + (messages.getString("commands.playerwarp.teleport.otherModality") ?: "<red>You cannot teleport to a warp in another modality!")))
                             return@executes 1
                         }

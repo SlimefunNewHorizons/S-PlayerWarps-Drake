@@ -12,7 +12,8 @@ data class PlayerWarp(
     var displayName: String? = null,
     var material: Material = Material.ENDER_PEARL,
     var totalUses: Int = 0,
-    var uniqueUses: MutableList<UUID> = mutableListOf()
+    var uniqueUses: MutableList<UUID> = mutableListOf(),
+    var modality: String = ModalityManager.getModality(location.world?.name)
 ) {
     fun teleport(player: Player) {
         player.teleport(location)

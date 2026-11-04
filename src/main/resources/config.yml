@@ -118,6 +118,14 @@ modalities:
       - "clasico"
       - "clasico_nether"
       - "clasico_the_end"
+    onechunk:
+      - "onechunk_world"
+      - "onechunk_world_nether"
+      - "onechunk_world_the_end"
+    laboratorio:
+      - "world_lab_flat"
+      - "world_lab_flat_nether"
+      - "world_lab_flat_the_end"
   denied-worlds:
     - "boss_arena"
     - "boss_dimension"

@@ -21,6 +21,7 @@ object PWManager {
     fun loadAllFromDisk() {
         cache.clear()
         val warpsSection = data.getSection("warps") ?: return
+        var migrated = 0
 
         for (key in warpsSection.getRoutesAsStrings(false)) {
             val warpSection = warpsSection.getSection(key) ?: continue
@@ -47,8 +48,13 @@ object PWManager {
             val world = main.server.getWorld(worldName) ?: continue
             val location = Location(world, x, y, z, yaw, pitch)
 
-            cache[key] = PlayerWarp(key, owner, location, displayName, material, totalUses, uniqueUses.map { UUID.fromString(it) }.toMutableList() )
+            // Migracion: warps antiguos sin modalidad la heredan del mundo donde estan
+            val modality = warpSection.getString("modality")?.takeIf { it.isNotBlank() }?.lowercase()
+                ?: ModalityManager.getModality(worldName).also { migrated++ }
+
+            cache[key] = PlayerWarp(key, owner, location, displayName, material, totalUses, uniqueUses.map { UUID.fromString(it) }.toMutableList(), modality)
         }
+        if (migrated > 0) main.logger.info("Assigned a modality to $migrated existing player warps.")
     }
 
     fun saveAllToDisk() {
@@ -63,7 +69,7 @@ object PWManager {
         }
 
         for ((identifier, playerWarp) in snapshot) {
-            val (id, owner, location, displayName, material, totalUses, uniqueUses) = playerWarp
+            val (id, owner, location, displayName, material, totalUses, uniqueUses, modality) = playerWarp
             val worldName = location.world?.name ?: continue
 
             if (data.getSection("warps.$identifier") == null) data.createSection("warps.$identifier")
@@ -74,6 +80,7 @@ object PWManager {
             data.set("warps.$identifier.loc.z", location.z)
             data.set("warps.$identifier.loc.yaw", location.yaw)
             data.set("warps.$identifier.loc.pitch", location.pitch)
+            data.set("warps.$identifier.modality", modality)
             data.set("warps.$identifier.displayName", displayName)
             data.set("warps.$identifier.material", material.name)
             data.set("warps.$identifier.totalUses", totalUses)

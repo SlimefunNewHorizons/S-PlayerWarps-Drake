@@ -115,7 +115,7 @@ object GuiManager {
         val warps = PWManager.getAllWarps()
             .filter { w ->
                 if (player.hasPermission("s-playerwarps.admin.crossmodality")) true
-                else ModalityManager.getModality(w.location.world?.name) == playerModality
+                else w.modality == playerModality
             }
             .sortedByDescending { w -> w.uniqueUses.size }
 
@@ -153,7 +153,7 @@ object GuiManager {
 
             val guiItem = GuiItem(itemStack) { event ->
                 val p = event.whoClicked as? Player ?: return@GuiItem
-                if (!ModalityManager.isSameModality(p.world.name, warp.location.world?.name) && !p.hasPermission("s-playerwarps.admin.crossmodality")) {
+                if (ModalityManager.getModality(p.world.name) != warp.modality && !p.hasPermission("s-playerwarps.admin.crossmodality")) {
                     val messages = ConfigManager.getConfig(config?.getString("langFile", "english") ?: "english")
                     val prefix = config?.getString("prefix") ?: Main.DEFAULT_PREFIX
                     p.sendMessage(mm.deserialize(prefix + (messages?.getString("commands.playerwarp.teleport.otherModality") ?: "<red>This warp belongs to another modality!")))
@@ -270,7 +270,7 @@ object GuiManager {
         val warps = PWManager.getPlayerWarpsByOwner(player.uniqueId)
             .filter { w ->
                 if (player.hasPermission("s-playerwarps.admin.crossmodality")) true
-                else ModalityManager.getModality(w.location.world?.name) == playerModality
+                else w.modality == playerModality
             }
             .sortedByDescending { w -> w.uniqueUses.size }
 

@@ -8,6 +8,8 @@ object ModalityManager {
     const val ONEBLOCK = "oneblock"
     const val SKYBLOCK = "skyblock"
     const val CLASICO = "clasico"
+    const val ONECHUNK = "onechunk"
+    const val LABORATORIO = "laboratorio"
 
     private val DEFAULT_MODALITIES = mapOf(
         SURVIVAL to listOf(
@@ -25,11 +27,17 @@ object ModalityManager {
         ),
         CLASICO to listOf(
             "clasico", "clasico_nether", "clasico_the_end"
+        ),
+        ONECHUNK to listOf(
+            "onechunk_world", "onechunk_world_nether", "onechunk_world_the_end"
+        ),
+        LABORATORIO to listOf(
+            "world_lab_flat", "world_lab_flat_nether", "world_lab_flat_the_end"
         )
     )
 
     private val DEFAULT_DENIED = setOf(
-        "boss_arena", "boss_dimension", "drakes_bosses", "nlogin_limbo", "laboratorio"
+        "boss_arena", "boss_dimension", "drakes_bosses", "nlogin_limbo"
     )
 
     fun getModality(worldName: String?): String {
@@ -57,6 +65,8 @@ object ModalityManager {
             w.startsWith("oneblock") -> ONEBLOCK
             w.startsWith("bskyblock") -> SKYBLOCK
             w.startsWith("clasico") -> CLASICO
+            w.startsWith("onechunk") -> ONECHUNK
+            w.startsWith("world_lab") -> LABORATORIO
             isDenied(worldName) -> "denied"
             else -> SURVIVAL
         }
