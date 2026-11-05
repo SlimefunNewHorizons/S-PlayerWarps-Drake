@@ -11,29 +11,55 @@ import java.util.concurrent.ConcurrentHashMap
 
 object PWManager {
 
-    private val main = Main.instance
+    private val main get() = Main.instance
     private val config get() = ConfigManager.getConfig("config")
     private val data get() = ConfigManager.getConfig("data")
     private val cache: MutableMap<String, PlayerWarp> = ConcurrentHashMap()
     var saveTask: BukkitTask? = null
         private set
 
-    fun resolveIconMaterial(rawName: String?): Material? {
-        if (rawName.isNullOrBlank()) return null
+    internal fun candidateIconMaterialNames(rawName: String?): List<String> {
+        if (rawName.isNullOrBlank()) return emptyList()
         val normalized = rawName.trim().uppercase().replace(" ", "_")
-        val direct = Material.getMaterial(normalized)
-        if (direct != null && direct.isItem) return direct
+        if (normalized.isEmpty()) return emptyList()
+
+        val candidates = LinkedHashSet<String>()
+        candidates.add(normalized)
         if (normalized.contains("_WALL_")) {
-            val wallAdjusted = Material.getMaterial(normalized.replace("_WALL_", "_"))
-            if (wallAdjusted != null && wallAdjusted.isItem) return wallAdjusted
+            candidates.add(normalized.replace("_WALL_", "_"))
+        }
+        if (normalized.startsWith("WALL_")) {
+            candidates.add(normalized.removePrefix("WALL_"))
+        }
+        when (normalized) {
+            "WATER" -> candidates.add("WATER_BUCKET")
+            "LAVA" -> candidates.add("LAVA_BUCKET")
+            "POWDER_SNOW" -> candidates.add("POWDER_SNOW_BUCKET")
+        }
+        return candidates.toList()
+    }
+
+    fun resolveIconMaterial(
+        rawName: String?,
+        isItemPredicate: (Material) -> Boolean = { it.isItem }
+    ): Material? {
+        for (candidate in candidateIconMaterialNames(rawName)) {
+            val material = Material.getMaterial(candidate)
+            if (material != null && isItemPredicate(material)) {
+                return material
+            }
         }
         return null
     }
 
-    fun sanitizeIconMaterial(material: Material?, fallback: Material = Material.ENDER_PEARL): Material {
+    fun sanitizeIconMaterial(
+        material: Material?,
+        fallback: Material = Material.ENDER_PEARL,
+        isItemPredicate: (Material) -> Boolean = { it.isItem }
+    ): Material {
         if (material == null) return fallback
-        if (material.isItem) return material
-        return resolveIconMaterial(material.name) ?: fallback
+        if (isItemPredicate(material)) return material
+        return resolveIconMaterial(material.name, isItemPredicate) ?: fallback
     }
 
     fun loadAllFromDisk() {
